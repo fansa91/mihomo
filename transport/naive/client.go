@@ -145,7 +145,14 @@ func NewClient(options *ClientOptions) (*Client, error) {
 		IdleConnTimeout: options.IdleTimeout,
 		// Mimic Chromium's HTTP/2 SETTINGS and pseudo-header order so the
 		// tunnel is indistinguishable from a regular Chrome connection.
-		HTTP2: &http.HTTP2Config{ChromeFingerprint: true},
+		HTTP2: &http.HTTP2Config{
+			ChromeFingerprint: true,
+			// Keep the shared HTTP/2 tunnel honest: without a health-check ping a
+			// silently dead connection (NAT rebinding, server drop) is reused by
+			// every new stream and never fails fast.
+			SendPingTimeout: 15 * time.Second,
+			PingTimeout:     10 * time.Second,
+		},
 	}
 	return c, nil
 }
