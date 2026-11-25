@@ -91,6 +91,10 @@ var fingerprints = map[string]UClientHelloID{
 	"firefox120": utls.HelloFirefox_120,
 	"safari16":   utls.HelloSafari_16_0,
 
+	// pinned modern Chrome fingerprints
+	"chrome133": utls.HelloChrome_133,
+	"chrome155": utls.HelloChrome_155,
+
 	// deprecated fingerprints should not be used
 	"chrome_psk":                 utls.HelloChrome_100_PSK,
 	"chrome_psk_shuffle":         utls.HelloChrome_106_Shuffle,

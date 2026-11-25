@@ -152,3 +152,5 @@ replace google.golang.org/protobuf => github.com/metacubex/protobuf-go v0.0.0-20
 
 // local fork of metacubex/http to emulate Chrome's HTTP/2 SETTINGS fingerprint
 replace github.com/metacubex/http => ./third_party/http
+
+replace github.com/metacubex/utls => ./third_party/utls
