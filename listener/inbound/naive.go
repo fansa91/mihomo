@@ -19,6 +19,7 @@ type NaiveOption struct {
 	EchKey         string            `inbound:"ech-key,omitempty"`
 	Fallback       string            `inbound:"fallback,omitempty"`
 	HTTP3          bool              `inbound:"http3,omitempty"`
+	IdleTimeout    int               `inbound:"idle-timeout,omitempty"`
 	MuxOption      MuxOption         `inbound:"mux-option,omitempty"`
 }
 
@@ -52,6 +53,7 @@ func NewNaive(options *NaiveOption) (*Naive, error) {
 			EchKey:         options.EchKey,
 			Fallback:       options.Fallback,
 			HTTP3:          options.HTTP3,
+			IdleTimeout:    options.IdleTimeout,
 			MuxOption:      options.MuxOption.Build(),
 		},
 	}, nil

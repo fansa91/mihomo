@@ -17,10 +17,20 @@ import (
 // established. It must block until the connection is done.
 type Handler func(conn net.Conn, addr socks5.Addr, user string)
 
+// DefaultIdleTimeout is how long an authenticated h2 tunnel may stay idle
+// before the server closes it. It mirrors what the reference implementation
+// does (forwardproxy overrides the read deadline to 86400s once a request is
+// authenticated): an idle tunnel is normal for a proxy, so the server must not
+// hang up before the client does. The client reclaims idle connections after
+// 90s by default, which means the server never gets to close a live one.
+const DefaultIdleTimeout = 24 * time.Hour
+
 type ServerOptions struct {
 	Users    map[string]string
 	Handler  Handler
 	Fallback http.Handler // serves non-proxy requests to hide the proxy (probe resistance)
+	// IdleTimeout overrides DefaultIdleTimeout; <= 0 keeps the default.
+	IdleTimeout time.Duration
 }
 
 type Server struct {
@@ -30,9 +40,13 @@ type Server struct {
 
 func NewServer(options *ServerOptions) *Server {
 	s := &Server{options: options}
+	idleTimeout := options.IdleTimeout
+	if idleTimeout <= 0 {
+		idleTimeout = DefaultIdleTimeout
+	}
 	s.httpServer = &http.Server{
 		Handler:     http.HandlerFunc(s.serveHTTP),
-		IdleTimeout: 30 * time.Second,
+		IdleTimeout: idleTimeout,
 		Protocols:   new(http.Protocols),
 	}
 	// naive is HTTP/2 only. SetUnencryptedHTTP2 lets the server treat the

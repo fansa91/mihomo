@@ -17,7 +17,11 @@ type NaiveServer struct {
 	EchKey         string            `yaml:"ech-key" json:"ech-key"`
 	Fallback       string            `yaml:"fallback" json:"fallback,omitempty"`
 	HTTP3          bool              `yaml:"http3" json:"http3,omitempty"`
-	MuxOption      sing.MuxOption    `yaml:"mux-option" json:"mux-option,omitempty"`
+	// IdleTimeout is the h2 tunnel idle timeout in seconds; 0 means the
+	// default (24h), which keeps the server from closing a tunnel before the
+	// client recycles it.
+	IdleTimeout int            `yaml:"idle-timeout" json:"idle-timeout,omitempty"`
+	MuxOption   sing.MuxOption `yaml:"mux-option" json:"mux-option,omitempty"`
 }
 
 func (t NaiveServer) String() string {

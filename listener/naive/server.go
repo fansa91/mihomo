@@ -137,9 +137,10 @@ func New(config LC.NaiveServer, lc C.InboundListenConfig, tunnel C.Tunnel, addit
 	}
 
 	server := naive.NewServer(&naive.ServerOptions{
-		Users:    config.Users,
-		Fallback: fallbackHandler,
-		Handler:  tunnelHandler,
+		Users:       config.Users,
+		Fallback:    fallbackHandler,
+		Handler:     tunnelHandler,
+		IdleTimeout: time.Duration(config.IdleTimeout) * time.Second,
 	})
 	dl.servers = append(dl.servers, server)
 
