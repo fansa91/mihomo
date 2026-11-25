@@ -371,9 +371,17 @@ func TestInboundVless_Reality(t *testing.T) {
 		outboundOptions.Flow = "xtls-rprx-vision"
 		testInboundVless(t, inboundOptions, outboundOptions)
 	})
+	t.Run("X25519-only", func(t *testing.T) {
+		// explicit opt-out must still work against servers that do not speak the hybrid share
+		outboundOptions := outboundOptions
+		disabledMLKEM := false
+		outboundOptions.RealityOpts.SupportX25519MLKEM768 = &disabledMLKEM
+		testInboundVless(t, inboundOptions, outboundOptions)
+	})
 	t.Run("X25519MLKEM768", func(t *testing.T) {
 		outboundOptions := outboundOptions
-		outboundOptions.RealityOpts.SupportX25519MLKEM768 = true
+		enabledMLKEM := true
+		outboundOptions.RealityOpts.SupportX25519MLKEM768 = &enabledMLKEM
 		testInboundVless(t, inboundOptions, outboundOptions)
 		t.Run("xtls-rprx-vision", func(t *testing.T) {
 			outboundOptions := outboundOptions
@@ -407,7 +415,8 @@ func TestInboundVless_Reality_Grpc(t *testing.T) {
 	testInboundVless(t, inboundOptions, outboundOptions)
 	t.Run("X25519MLKEM768", func(t *testing.T) {
 		outboundOptions := outboundOptions
-		outboundOptions.RealityOpts.SupportX25519MLKEM768 = true
+		enabledMLKEM := true
+		outboundOptions.RealityOpts.SupportX25519MLKEM768 = &enabledMLKEM
 		testInboundVless(t, inboundOptions, outboundOptions)
 	})
 }

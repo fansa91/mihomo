@@ -13,6 +13,7 @@ import (
 	"crypto/x509"
 	"encoding/binary"
 	"errors"
+	"fmt"
 	"net"
 	"strings"
 	"time"
@@ -124,6 +125,12 @@ func GetRealityConn(ctx context.Context, conn net.Conn, fingerprint UClientHello
 
 		if !verifier.verified {
 			go realityClientFallback(uConn, uConfig.ServerName, fingerprint)
+			if realityConfig.SupportX25519MLKEM768 {
+				// The hybrid key share is required by Xray v26.9.8+, but servers older than
+				// that reject the whole ClientHello. Point at the opt-out instead of leaving
+				// the user with a bare "authentication failed".
+				return nil, fmt.Errorf("REALITY authentication failed: if the server runs Xray older than v26.9.8, add \"disable-x25519mlkem768: true\" to the reality-opts")
+			}
 			return nil, errors.New("REALITY authentication failed")
 		}
 
