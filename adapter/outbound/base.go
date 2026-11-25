@@ -16,6 +16,7 @@ import (
 	"github.com/metacubex/mihomo/component/resolver"
 	C "github.com/metacubex/mihomo/constant"
 	"github.com/metacubex/mihomo/log"
+	"github.com/metacubex/mihomo/transport/finalmask"
 
 	"github.com/gofrs/uuid/v5"
 )
@@ -197,6 +198,9 @@ type BasicOption struct {
 	RoutingMark int         `proxy:"routing-mark,omitempty"`
 	IPVersion   C.DNSPrefer `proxy:"ip-version,omitempty"`
 	DialerProxy string      `proxy:"dialer-proxy,omitempty"` // don't apply this option into groups, but can set a group name in a proxy
+	// FinalMask applies Xray-compatible transport masks (fragment,
+	// proxy-protocol, salamander) right above the socket.
+	FinalMask *finalmask.Option `proxy:"finalmask,omitempty"`
 
 	//
 	// The following parameters are used internally, assign value by the structure decoder are disallowed
@@ -213,6 +217,14 @@ func (b *BasicOption) NewDialer(opts []dialer.Option) C.Dialer {
 			cDialer = proxydialer.NewByName(b.DialerProxy, b.NewTunnel())
 		} else {
 			cDialer = dialer.NewDialer(opts...)
+		}
+	}
+	if b.FinalMask != nil {
+		mask, err := finalmask.Parse(b.FinalMask)
+		if err != nil {
+			log.Errorln("finalmask: %v", err)
+		} else if mask != nil {
+			cDialer = finalmask.WrapDialer(cDialer, mask)
 		}
 	}
 	return cDialer
